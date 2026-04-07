@@ -45,10 +45,11 @@ class InputSender:
         return [part.strip().lower() for part in raw.split(",") if part.strip()]
 
     def send_sequence_global(self, raw: str) -> None:
-        for idx, action in enumerate(self.parse_sequence(raw)):
-            self._send_action_global(action)
-            if idx:
+        actions = self.parse_sequence(raw)
+        for idx, action in enumerate(actions):
+            if idx > 0:
                 time.sleep(0.02)
+            self._send_action_global(action)
 
     def _send_action_global(self, action: str) -> None:
         if action == "click":

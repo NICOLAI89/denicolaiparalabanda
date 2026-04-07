@@ -13,7 +13,7 @@ from app.vision.tracker import OpticalFlowTracker
 
 
 class MacroRunner:
-    def __init__(self, index: int, sender: InputSender, detector_manager: DetectorManager, capture: ScreenCapture, target_manager: TargetManager) -> None:
+    def __init__(self, index: int, sender: InputSender, detector_manager: DetectorManager, capture: ScreenCapture, target_manager: TargetManager, on_stopped=None) -> None:
         self.index = index
         self.sender = sender
         self.detector_manager = detector_manager
@@ -22,14 +22,17 @@ class MacroRunner:
         self.stop_event = threading.Event()
         self.thread: threading.Thread | None = None
         self.tracker = OpticalFlowTracker()
+        self.on_stopped = on_stopped
+        self.last_tracker_ts: float = 0.0
 
     def start(self, config: MacroConfig, send_mode: str, hwnd: int | None) -> None:
         if self.thread and self.thread.is_alive():
             return
         self.stop_event.clear()
+        self.last_tracker_ts = 0.0
+        LOGGER.info("Macro %s started", self.index)
         self.thread = threading.Thread(target=self._loop, args=(config, send_mode, hwnd), daemon=True)
         self.thread.start()
-        LOGGER.info("Macro %s started", self.index)
 
     def stop(self) -> None:
         self.stop_event.set()
@@ -37,6 +40,7 @@ class MacroRunner:
 
     def _loop(self, config: MacroConfig, send_mode: str, hwnd: int | None) -> None:
         next_allowed = 0.0
+        failure_reason: str | None = None
         while not self.stop_event.is_set():
             try:
                 if config.vision_enabled:
@@ -49,9 +53,13 @@ class MacroRunner:
                 else:
                     self._run_sequence(config, send_mode, hwnd)
                 self.stop_event.wait(config.interval_ms / 1000.0)
-            except Exception:
+            except Exception as exc:
+                failure_reason = str(exc)
                 LOGGER.exception("Macro %s failed", self.index)
                 self.stop_event.set()
+
+        if self.on_stopped:
+            self.on_stopped(self.index, failure_reason)
 
     def _run_sequence(self, config: MacroConfig, send_mode: str, hwnd: int | None) -> None:
         if send_mode == "window" and hwnd:
@@ -65,14 +73,24 @@ class MacroRunner:
         if target is None:
             return False
 
+        now = time.time()
+        timeout_seconds = max(0.1, config.tracker_timeout_ms / 1000.0)
+        if self.last_tracker_ts and (now - self.last_tracker_ts) > timeout_seconds:
+            self.tracker.last_bbox = None
+            self.last_tracker_ts = 0.0
+
         result = self.detector_manager.detect(config.detector_type, frame, target, config.match_threshold)
-        if not result.found and config.track_after_detect and self.tracker.last_bbox:
+        can_reuse_tracker = config.track_after_detect and self.tracker.last_bbox and self.last_tracker_ts > 0.0
+        if not result.found and can_reuse_tracker:
             result = self.tracker.track(frame, threshold=max(0.6, config.match_threshold - 0.2))
+            if result.found:
+                self.last_tracker_ts = now
         if not result.found:
             return False
 
         if config.track_after_detect and result.bbox:
             self.tracker.update_from_detection(result.bbox)
+            self.last_tracker_ts = now
 
         if config.trigger_sequence_on_match:
             self._run_sequence(config, send_mode, hwnd)
