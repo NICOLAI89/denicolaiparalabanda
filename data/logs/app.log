@@ -1,0 +1,72 @@
+2026-04-07 11:48:33,731 | INFO | macro_tool_v2 | Hotkey listener started
+2026-04-07 11:48:33,732 | INFO | macro_tool_v2 | Profile saved: D:\macritoaopro\denicolaiparalabanda\data\profiles\default.json
+2026-04-07 11:50:19,768 | ERROR | macro_tool_v2 | Macro 1 failed
+Traceback (most recent call last):
+  File "D:\macritoaopro\denicolaiparalabanda\app\core\macro_engine.py", line 47, in _loop
+    if self._run_vision(config, send_mode, hwnd):
+       ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\macritoaopro\denicolaiparalabanda\app\core\macro_engine.py", line 63, in _run_vision
+    frame = self.capture.capture(config.search_region)
+  File "D:\macritoaopro\denicolaiparalabanda\app\vision\screen_capture.py", line 18, in capture
+    img = np.array(self.sct.grab(monitor))
+                   ~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\macritoaopro\denicolaiparalabanda\.venv\Lib\site-packages\mss\base.py", line 101, in grab
+    screenshot = self._grab_impl(monitor)
+  File "D:\macritoaopro\denicolaiparalabanda\.venv\Lib\site-packages\mss\windows.py", line 226, in _grab_impl
+    srcdc, memdc = self._handles.srcdc, self._handles.memdc
+                   ^^^^^^^^^^^^^^^^^^^
+AttributeError: '_thread._local' object has no attribute 'srcdc'
+2026-04-07 11:50:19,768 | INFO | macro_tool_v2 | Macro 1 started
+2026-04-07 11:50:26,047 | ERROR | macro_tool_v2 | Macro 1 failed
+Traceback (most recent call last):
+  File "D:\macritoaopro\denicolaiparalabanda\app\core\macro_engine.py", line 47, in _loop
+    if self._run_vision(config, send_mode, hwnd):
+       ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\macritoaopro\denicolaiparalabanda\app\core\macro_engine.py", line 63, in _run_vision
+    frame = self.capture.capture(config.search_region)
+  File "D:\macritoaopro\denicolaiparalabanda\app\vision\screen_capture.py", line 18, in capture
+    img = np.array(self.sct.grab(monitor))
+                   ~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\macritoaopro\denicolaiparalabanda\.venv\Lib\site-packages\mss\base.py", line 101, in grab
+    screenshot = self._grab_impl(monitor)
+  File "D:\macritoaopro\denicolaiparalabanda\.venv\Lib\site-packages\mss\windows.py", line 226, in _grab_impl
+    srcdc, memdc = self._handles.srcdc, self._handles.memdc
+                   ^^^^^^^^^^^^^^^^^^^
+AttributeError: '_thread._local' object has no attribute 'srcdc'
+2026-04-07 11:50:26,047 | INFO | macro_tool_v2 | Macro 1 started
+2026-04-07 11:50:26,701 | ERROR | macro_tool_v2 | Macro 1 failed
+Traceback (most recent call last):
+  File "D:\macritoaopro\denicolaiparalabanda\app\core\macro_engine.py", line 47, in _loop
+    if self._run_vision(config, send_mode, hwnd):
+       ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\macritoaopro\denicolaiparalabanda\app\core\macro_engine.py", line 63, in _run_vision
+    frame = self.capture.capture(config.search_region)
+  File "D:\macritoaopro\denicolaiparalabanda\app\vision\screen_capture.py", line 18, in capture
+    img = np.array(self.sct.grab(monitor))
+                   ~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\macritoaopro\denicolaiparalabanda\.venv\Lib\site-packages\mss\base.py", line 101, in grab
+    screenshot = self._grab_impl(monitor)
+  File "D:\macritoaopro\denicolaiparalabanda\.venv\Lib\site-packages\mss\windows.py", line 226, in _grab_impl
+    srcdc, memdc = self._handles.srcdc, self._handles.memdc
+                   ^^^^^^^^^^^^^^^^^^^
+AttributeError: '_thread._local' object has no attribute 'srcdc'
+2026-04-07 11:50:26,701 | INFO | macro_tool_v2 | Macro 1 started
+2026-04-07 11:50:27,195 | ERROR | macro_tool_v2 | Macro 1 failed
+Traceback (most recent call last):
+  File "D:\macritoaopro\denicolaiparalabanda\app\core\macro_engine.py", line 47, in _loop
+    if self._run_vision(config, send_mode, hwnd):
+       ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\macritoaopro\denicolaiparalabanda\app\core\macro_engine.py", line 63, in _run_vision
+    frame = self.capture.capture(config.search_region)
+  File "D:\macritoaopro\denicolaiparalabanda\app\vision\screen_capture.py", line 18, in capture
+    img = np.array(self.sct.grab(monitor))
+                   ~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\macritoaopro\denicolaiparalabanda\.venv\Lib\site-packages\mss\base.py", line 101, in grab
+    screenshot = self._grab_impl(monitor)
+  File "D:\macritoaopro\denicolaiparalabanda\.venv\Lib\site-packages\mss\windows.py", line 226, in _grab_impl
+    srcdc, memdc = self._handles.srcdc, self._handles.memdc
+                   ^^^^^^^^^^^^^^^^^^^
+AttributeError: '_thread._local' object has no attribute 'srcdc'
+2026-04-07 11:50:27,195 | INFO | macro_tool_v2 | Macro 1 started
+2026-04-07 11:59:09,905 | INFO | macro_tool_v2 | Closing app
+2026-04-07 11:59:09,905 | INFO | macro_tool_v2 | Macro 1 stop requested
