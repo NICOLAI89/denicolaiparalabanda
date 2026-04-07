@@ -1,0 +1,7 @@
+keyboard
+pynput
+pywin32
+opencv-python
+mss
+pillow
+numpy
