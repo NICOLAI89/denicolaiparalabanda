@@ -238,7 +238,7 @@ class MainWindow:
 
     def toggle_macro(self, idx: int):
         if idx not in self.runners:
-            self.runners[idx] = MacroRunner(idx, self.sender, self.detector_manager, self.capture, self.target_manager)
+            self.runners[idx] = MacroRunner(idx, self.sender, self.detector_manager, self.capture, self.target_manager, self.on_macro_stopped)
         runner = self.runners[idx]
         card = self.cards[idx - 1]
         if runner.thread and runner.thread.is_alive():
@@ -252,6 +252,16 @@ class MainWindow:
             runner.start(cfg, self.send_mode.get(), self.selected_hwnd())
             card.set_running_state(True)
         self.refresh_dashboard()
+
+    def on_macro_stopped(self, idx: int, reason: str | None = None) -> None:
+        def _update_ui() -> None:
+            card = self.cards[idx - 1]
+            card.set_running_state(False)
+            if reason:
+                self.status_var.set(f"Macro {idx} detenida por error: {reason}")
+            self.refresh_dashboard()
+
+        self.root.after(0, _update_ui)
 
     def toggle_all(self):
         for i, _ in enumerate(self.cards, start=1):

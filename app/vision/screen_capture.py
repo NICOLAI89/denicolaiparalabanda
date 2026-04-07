@@ -6,14 +6,14 @@ import numpy as np
 
 
 class ScreenCapture:
-    def __init__(self) -> None:
-        self.sct = mss.mss()
-
     def capture(self, region: tuple[int, int, int, int] | None = None):
-        if region:
-            left, top, width, height = region
-            monitor = {"left": left, "top": top, "width": width, "height": height}
-        else:
-            monitor = self.sct.monitors[1]
-        img = np.array(self.sct.grab(monitor))
+        # mss keeps thread-local native handles internally; sharing one instance across
+        # worker threads can crash with missing thread-local attributes.
+        with mss.mss() as sct:
+            if region:
+                left, top, width, height = region
+                monitor = {"left": left, "top": top, "width": width, "height": height}
+            else:
+                monitor = sct.monitors[1]
+            img = np.array(sct.grab(monitor))
         return cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
