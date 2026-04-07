@@ -82,6 +82,10 @@ class MacroRunner:
             if config.search_region:
                 sx, sy, _, _ = config.search_region
                 cx, cy = cx + sx, cy + sy
-            self.sender.click_screen(cx + ox, cy + oy)
+            final_x, final_y = cx + ox, cy + oy
+            if send_mode == "window" and hwnd:
+                self.sender.click_window_screen(hwnd, final_x, final_y)
+            else:
+                self.sender.click_screen(final_x, final_y)
         LOGGER.info("Macro %s vision match with %s (%.3f)", self.index, config.detector_type, result.confidence)
         return True

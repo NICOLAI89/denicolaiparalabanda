@@ -1,109 +1,89 @@
 # Macro Tool v2 (Windows-first)
 
-Professional modular refactor of a Tkinter macro app with profile persistence and per-macro visual detection.
+Utilidad de escritorio para automatizar secuencias de teclado/ratón con perfiles persistentes y detección visual por macro.
 
-## Features
-- Multiple macro cards with enable/start-stop, sequence, interval, and per-macro hotkeys.
-- Global input mode and specific-window mode.
-- Click, right-click, double-click, and key sequence support (`u,click`, `ctrl+a`, etc).
-- Persistent JSON profiles in `data/profiles` (new/load/save/save as/delete).
-- Dashboard with runtime summary (status, active macros, mode, profile, target window, vision summary, detector summary).
-- Vision mode per macro:
-  - Template matching (best for static UI/HUD/buttons/icons).
-  - ORB feature matching + homography (best for moving 2D sprites/targets with translation/scale/rotation variance).
-  - Optional lightweight tracking after initial detection.
-- Region selection overlay and target image capture to `data/targets`.
-- Centralized logging to console + `data/logs/app.log`.
+## Qué hace la app
+- Ejecuta macros por tarjeta (ON/OFF independiente) con secuencias tipo `ctrl+a, click, enter`.
+- Soporta envío **Global** o **Ventana objetivo** (Win32) para teclas, especiales y combinaciones comunes.
+- Hotkey maestro + hotkeys por macro, incluyendo ratón (`mouse4`, `mouse5`, `x1`, `x2`).
+- Detección visual híbrida por macro:
+  - `template` para UI estática (botones, iconos, HUD fijo).
+  - `feature` (ORB + matching + homografía) para objetivos 2D en movimiento.
+- Captura de región e imagen objetivo desde overlay fullscreen.
+- Perfiles JSON con tema, topmost, modo, ventana objetivo y configuración completa de macros.
+- Interfaz con scroll vertical, modo claro/oscuro y tooltips contextuales en español.
 
-## Project Layout
-
-```text
-app/
-  main.py
-  ui/
-    main_window.py
-    macro_slot_widget.py
-    dashboard.py
-    theme.py
-    region_selector.py
-    dialogs.py
-  core/
-    macro_engine.py
-    input_sender.py
-    hotkeys.py
-    window_manager.py
-    state.py
-    models.py
-  profiles/
-    profile_manager.py
-  vision/
-    base_detector.py
-    template_matcher.py
-    feature_matcher.py
-    tracker.py
-    detector_manager.py
-    screen_capture.py
-    target_manager.py
-  utils/
-    paths.py
-    validation.py
-    logger.py
-    image_utils.py
-    threading_utils.py
-data/
-  profiles/
-  targets/
-  logs/
-main.py
-requirements.txt
+## Instalación
+```bash
+pip install -r requirements.txt
 ```
 
-## Installation
-1. Python 3.11+ recommended.
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Run:
-   ```bash
-   python main.py
-   ```
+## Ejecución
+```bash
+python main.py
+```
 
-## Profiles
-- Profiles are JSON files under `data/profiles`.
-- First run auto-creates a default profile.
-- Profile stores:
-  - theme/topmost/master hotkey/send mode/target window
-  - per-macro standard settings
-  - all vision settings (detector, target path, region, thresholds, cooldown, click+sequence behaviors, offsets, tracker options)
+## Dependencias
+Se instalan desde `requirements.txt`:
+- keyboard
+- pynput
+- pywin32
+- opencv-python
+- mss
+- pillow
+- numpy
 
-## Vision Workflow
-1. Enable `Use visual detection` on a macro.
-2. Click `Capture region` to define search area (or use full screen).
-3. Click `Capture target` and draw the target patch.
-4. Choose detector:
-   - **template** for stable static UI elements.
-   - **feature** for moving 2D targets/sprites.
-5. Configure threshold, cooldown, click/sequence behavior, offsets.
-6. Use `Test detection` to validate.
+## Gestión de perfiles
+- Crear, cargar, guardar, guardar como y borrar desde la barra superior.
+- Primer inicio: se crea perfil `default` automáticamente.
+- Persistencia incluye:
+  - tema (light/dark)
+  - topmost
+  - hotkey maestro
+  - modo de envío
+  - etiqueta de ventana objetivo
+  - configuración completa de cada macro (incluyendo visión)
+- Si una ventana guardada ya no existe, se usa fallback seguro (primera visible o vacío).
 
-### Action Modes on Detection
-Use checkboxes to combine behavior:
-- Click only (`Click on match` on, sequence off)
-- Sequence only (`Run sequence on match` on, click off)
-- Sequence then click (both on)
-- Click center + offset using `Offset X/Y`
+## Modos de envío: Global vs Ventana
+- **Global**: usa eventos globales del sistema.
+- **Ventana**: intenta enviar teclas y combinaciones por Win32 al HWND seleccionado.
+- Clicks en detección visual usan coordenadas de pantalla y conversión a cliente en modo Ventana.
 
-## Window Mode vs Global Mode
-- Detection is screen-based (full-screen or absolute region).
-- In window mode, sequence sending attempts to target the selected window.
-- Click-on-match is currently absolute-screen click for predictability across detector outputs.
+## Hotkeys (incluye ratón)
+- Hotkey maestro: inicia/detiene todas las macros.
+- Hotkey por macro: inicia/detiene solo esa macro.
+- Alias soportados para botones laterales:
+  - `mouse4` / `x1`
+  - `mouse5` / `x2`
 
-## Extensibility (Future AI/ML)
-- Detector abstraction supports pluggable detectors.
-- Includes placeholder `ObjectDetectionDetector` for future YOLO/ML integration.
+## Flujo de detección visual
+En cada macro:
+1. Activa **Usar detección visual**.
+2. **Capturar región** (opcional, mejora rendimiento).
+3. **Capturar imagen objetivo**.
+4. Elige detector:
+   - `template`: objetivo estable.
+   - `feature`: objetivo 2D móvil.
+5. Ajusta umbral, cooldown, offset y acciones al detectar.
+6. Pulsa **Probar detección**.
 
-## Limitations
-- Designed for Windows (pywin32).
-- Feature matching depends on target texture quality.
-- Tracker is lightweight and intentionally simple for v2 baseline.
+### Cuándo usar Template vs Feature
+- Usa **Template** si el elemento casi no cambia de tamaño/rotación y siempre se ve igual.
+- Usa **Feature** si el sprite/objetivo se mueve mucho o puede variar algo en escala/orientación.
+
+## Región e imagen objetivo
+- Overlay fullscreen semitransparente con selección por arrastre.
+- Eventos usados: `<ButtonPress-1>`, `<B1-Motion>`, `<ButtonRelease-1>`.
+- Cancelar con `Escape`.
+
+## UI y experiencia
+- Dashboard de estado en tiempo real.
+- Scroll vertical visible para tarjetas.
+- Tema claro/oscuro persistente por perfil.
+- Tooltips de ayuda en español en áreas clave (dashboard, perfiles, modo de envío, ventana, hotkeys, controles de visión, etc.).
+
+## Limitaciones (Windows)
+- El envío a ventana depende de cómo procese mensajes cada app destino (algunas apps/juegos ignoran parte de Win32 messages).
+- En targets con poca textura, `feature` puede rendir peor.
+- La detección visual trabaja sobre captura de pantalla; si la ventana está oculta/minimizada, no habrá match fiable.

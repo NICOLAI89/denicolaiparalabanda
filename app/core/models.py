@@ -74,7 +74,7 @@ class AppProfile:
             if not isinstance(entry, dict):
                 continue
             parsed.append(MacroConfig(**{k: entry.get(k) for k in MacroConfig.__annotations__.keys() if k in entry}).normalized())
-        if not parsed:
-            parsed = [MacroConfig() for _ in range(6)]
-        profile.macros = parsed
+        if len(parsed) < 6:
+            parsed.extend(MacroConfig() for _ in range(6-len(parsed)))
+        profile.macros = parsed[:6]
         return profile
