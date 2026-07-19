@@ -1,5 +1,6 @@
 from __future__ import annotations
-
+# Agregar estos imports al inicio de app/ui/main_window.py
+from app.ui_autopot import ArgentumAutoPotFrame
 import ast
 import tkinter as tk
 from tkinter import messagebox, ttk
@@ -63,6 +64,8 @@ class MainWindow:
 
         self._build_profile_bar()
         self._build_global_options()
+        # AGREGAR ESTA LÍNEA - Sección de AutoPot para Argentum
+        self._build_autopot_section()
         self._build_macro_cards_scrollable()
         self.apply_theme(self.theme_var.get())
 
@@ -294,6 +297,11 @@ class MainWindow:
             target_window_label=self.window_var.get(),
             macros=macros,
         )
+        # AGREGAR ESTO - Guardar configuración del autopot
+        if hasattr(self, 'autopot_frame'):
+            profile.autopot_config = self.autopot_frame.get_config()
+        
+        return profile
 
     def apply_profile(self, profile: AppProfile):
         self.profile = profile
@@ -304,8 +312,14 @@ class MainWindow:
         self.topmost_var.set(profile.topmost)
         self._desired_window_label = profile.target_window_label
 
+        # Cargar configuración de macros
         for i, macro in enumerate(profile.macros[: len(self.cards)], start=1):
             self.cards[i - 1].load_config(macro)
+
+    # AGREGAR ESTO - Cargar configuración del autopot si existe
+        if hasattr(self, 'autopot_frame') and hasattr(profile, 'autopot_config') and profile.autopot_config:
+            self.autopot_frame.load_config(profile.autopot_config)
+
         self.apply_theme(profile.theme)
         self.apply_topmost()
         self.rebind_hotkeys()
@@ -370,6 +384,21 @@ class MainWindow:
 
     def on_close(self):
         LOGGER.info("Closing app")
+
+    # AGREGAR ESTO - Detener autopot si está corriendo
+        if hasattr(self, 'autopot_frame'):
+            self.autopot_frame.stop()
+
         for runner in self.runners.values():
             runner.stop()
         self.root.destroy()
+
+    def _build_autopot_section(self):
+        """Crea la sección de AutoPot para Argentum United."""
+        self.autopot_frame = ArgentumAutoPotFrame(self.root)
+        self.autopot_frame.pack(fill="x", padx=10, pady=6)
+        self._add_tooltip(self.autopot_frame, "Auto-detector de HP/Mana para Argentum United. Usa visión por computadora para detectar barras y enviar teclas automáticamente.")
+        
+        # Cargar configuración si existe en el perfil
+        if hasattr(self.profile, 'autopot_config') and self.profile.autopot_config:
+            self.autopot_frame.load_config(self.profile.autopot_config)
